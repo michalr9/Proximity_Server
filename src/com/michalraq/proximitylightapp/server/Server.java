@@ -7,9 +7,9 @@ public class Server {
     String 	host = "127.0.0.1";
 
     ServerSocket serverSocket;
-    Socket connection = null;
-    DataOutputStream out;
-    DataInputStream in;
+    Socket socket = null;
+    PrintWriter printWriter;
+    BufferedReader bufferedReader;
     String message;
 
     Server(){}
@@ -20,25 +20,19 @@ public class Server {
             // tworzymy nowe gniazdo -----------------------------------
             serverSocket = new ServerSocket( port);
             // akceptujemy polaczenie ----------------------------------
-            connection = serverSocket.accept();
+            socket = serverSocket.accept();
             // wyswietlamy informacje o polaczeniu ---------------------
-            System.out.println("Address: " + connection.getInetAddress() + " Port: " + connection.getPort() );
+            System.out.println("Address: " + socket.getInetAddress() + " Port: " + socket.getPort() );
 
-            out = new DataOutputStream(connection.getOutputStream());
+            bufferedReader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+            printWriter = new PrintWriter(socket.getOutputStream());
+
             sendMessage("Połączono !");
-            byte[] data = new byte[256];
 
-            boolean flaga ;
-            do {
+            while((message = bufferedReader.readLine())!=null) {
                 //transmisja przychodzaca
-                in = new DataInputStream(connection.getInputStream());
-                if(in.read(data)>0) {
-                    System.out.println("Odebrano " + new String(data));
-                    flaga=true;
-                }else
-                    flaga=false;
-
-            }while( flaga);
+                    System.out.println("Odebrano " + message);
+            }
 
         }
         catch(IOException ioException){
@@ -46,8 +40,9 @@ public class Server {
         }
         finally{
             try{
-                in.close();
-                out.close();
+                bufferedReader.close();
+                printWriter.close();
+                socket.close();
                 serverSocket.close();
                 System.out.println("Zamykam połączenie");
             }
@@ -59,14 +54,8 @@ public class Server {
 
     // metoda odpowiadajaca za wysylanie wiadomosci do klientow ========
     void sendMessage(String msg) {
-        try{
-            byte[] data = msg.getBytes();
-            out.write	( data );
-            out.flush();
-        }
-        catch(IOException ioException){
-            ioException.printStackTrace();
-        }
+            printWriter.println( msg );
+            printWriter.flush();
     }
 
 }
