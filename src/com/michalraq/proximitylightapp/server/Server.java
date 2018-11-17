@@ -30,8 +30,8 @@ public class Server {
             sendMessage("Połączono !");
 
             while((message = bufferedReader.readLine())!=null) {
-                //transmisja przychodzaca
-                    System.out.println("Odebrano " + message);
+
+                    System.out.println( message);
             }
 
         }
