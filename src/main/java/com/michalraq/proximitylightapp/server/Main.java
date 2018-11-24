@@ -1,4 +1,4 @@
-package com.michalraq.proximitylightapp.server;
+package main.java.com.michalraq.proximitylightapp.server;
 
 public class Main {
 

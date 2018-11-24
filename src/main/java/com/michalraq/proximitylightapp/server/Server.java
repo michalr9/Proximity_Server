@@ -1,4 +1,4 @@
-package com.michalraq.proximitylightapp.server;
+package main.java.com.michalraq.proximitylightapp.server;
 import java.io.*;
 import java.net.*;
 public class Server {
@@ -52,7 +52,6 @@ public class Server {
         }
     }
 
-    // metoda odpowiadajaca za wysylanie wiadomosci do klientow ========
     void sendMessage(String msg) {
             printWriter.println( msg );
             printWriter.flush();

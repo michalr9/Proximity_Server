@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="dataSourceStorageLocal">
+    <data-source name="Proximity" uuid="20cb215c-8b1a-4415-b08f-dfd69ed6de60">
+      <database-info product="Microsoft SQL Server" version="12.00.1000" jdbc-version="4.2" driver-name="Microsoft JDBC Driver 7.0 for SQL Server" driver-version="7.0.0.0">
+        <extra-name-characters>$#@</extra-name-characters>
+        <identifier-quote-string>&quot;</identifier-quote-string>
+      </database-info>
+      <case-sensitivity plain-identifiers="mixed" quoted-identifiers="mixed" />
+      <secret-storage>master_key</secret-storage>
+      <user-name>michalraq</user-name>
+      <introspection-schemas>Poximity:dbo</introspection-schemas>
+    </data-source>
+  </component>
+</project>
