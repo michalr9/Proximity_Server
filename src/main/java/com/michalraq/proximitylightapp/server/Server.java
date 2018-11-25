@@ -4,7 +4,6 @@ import java.net.*;
 public class Server {
 
     int 	port = 12345;
-    String 	host = "127.0.0.1";
 
     ServerSocket serverSocket;
     Socket socket = null;
