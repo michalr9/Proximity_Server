@@ -1,4 +1,4 @@
 proximityserver.database.windows.net
-Proximity
-michalraq
-Raq120396@
+Poximity
+Michal
+Qaz12345

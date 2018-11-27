@@ -16,7 +16,7 @@ public class FileReader {
             in = new Scanner(file);
 
         while(in.hasNextLine()) {
-            list.add(in.nextLine());
+            list.add(in.nextLine().trim());
         }
 
         } catch (FileNotFoundException e) {

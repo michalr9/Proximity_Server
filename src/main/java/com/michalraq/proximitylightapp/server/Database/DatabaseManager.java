@@ -2,6 +2,7 @@ package com.michalraq.proximitylightapp.server.Database;
 
 import com.michalraq.proximitylightapp.server.Exceptions.LackOfDatabaseData;
 import com.michalraq.proximitylightapp.server.Util.FileReader;
+import lombok.Getter;
 
 
 import java.sql.Connection;
@@ -14,17 +15,19 @@ public class DatabaseManager {
     private String dbName ;
     private String user ;
     private String password;
-    private String url ;
+@Getter private String url ;
     private Connection connection = null;
 
    public DatabaseManager() throws LackOfDatabaseData {
-       ArrayList<String> list = FileReader.readDbFile("//database.txt");
+       ArrayList<String> list = FileReader.readDbFile("database.txt");
        if (!list.isEmpty()) {
            hostName = list.get(0);
            dbName = list.get(1);
            user = list.get(2);
            password = list.get(3);
-           url = String.format("jdbc:sqlserver://%s:1433;database=%s;user=%s;password=%s;encrypt=true;hostNameInCertificate=*.database.windows.net;loginTimeout=30;", hostName, dbName, user, password);
+           url = String.format("jdbc:sqlserver://%s:1433;database=%s;user=%s;password=%s;encrypt=true;trustServerCertificate=false;hostNameInCertificate=*.database.windows.net;loginTimeout=30;", hostName, dbName, user, password);
+
+
        } else {
            hostName = "";
            dbName = "";
@@ -51,6 +54,7 @@ public class DatabaseManager {
     public Boolean disconnectDatabase(){
         try {
             connection.close();
+            System.out.println("Connection closed");
             return true;
         } catch (SQLException e) {
             e.printStackTrace();
