@@ -1,4 +1,0 @@
-proximityserver.database.windows.net
-Poximity
-Michal
-Qaz12345
