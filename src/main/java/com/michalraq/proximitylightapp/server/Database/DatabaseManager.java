@@ -70,14 +70,15 @@ public class DatabaseManager {
         LocalDateTime now = LocalDateTime.now();
         String date = dtf.format(now);
 
-        String sql1 = "INSERT DEV.CMT_STATUS VALUES \n" +
-                "(NEXT VALUE FOR DEV.SEQ_ID_STATUS,CAST('" + date + "'AS smalldatetime),null,"+message.getPlace()+")";
+        String sql = "INSERT DEV.CMT_STATUS VALUES \n" +
+                "(NEXT VALUE FOR DEV.SEQ_ID_STATUS,CAST('" + date + "'AS smalldatetime),null,'"+message.getPlace()+"')";
 
         try (Statement stm = connection.createStatement()) {
 
-            stm.execute(sql1);
+            stm.execute(sql);
         } catch (SQLException e) {
-            System.err.println("Blad insertIntoCmtStatusTIME_OUT");
+            System.err.println("Blad insertIntoCmtStatusTIME_IN");
+            e.printStackTrace();
         }
     }
 
@@ -94,23 +95,43 @@ public class DatabaseManager {
         StringBuilder build = new StringBuilder("'");
         build.append(date).append("'");
         date = build.toString();
+        boolean flag=false;
 
-        try{
-       PreparedStatement ps = connection.prepareStatement(
-                   "update DEV.CMT_STATUS\n" +
-                           "set TIME_OUT = CAST(?  as smalldatetime)\n" +
-                           "where ID_STATUS= (select current_value from sys.sequences where name = 'SEQ_ID_STATUS')");
+        //sprawdzenie czy istnieje rekord z aktualna wartoscia sekwencji, jezeli nie to nic nie rob
+           try (Statement stm = connection.createStatement()) {
+           String SQL = "select CMT_STATUS.ID_STATUS from CMT_STATUS where ID_STATUS = (select current_value from sys.sequences where name = 'SEQ_ID_STATUS');";
+           ResultSet rs = stm.executeQuery(SQL);
+           rs.next();
+           flag=rs.getBoolean("ID_STATUS");
+           if(!rs.wasNull())
+               flag=true;
+           } catch (SQLException e) {
+               System.err.println("Blad podczas sprawdzenia czy istnieje rekord");
+               e.printStackTrace();
 
-           ps.setString(1,date);
+           }
 
-           ps.executeUpdate();
-           ps.close();
+        if(flag) {
+            try {
+                PreparedStatement ps = connection.prepareStatement(
+                        "update DEV.CMT_STATUS\n" +
+                                "set TIME_OUT = CAST("+date+" as smalldatetime)\n" +
+                                "where ID_STATUS= (select current_value from sys.sequences where name = 'SEQ_ID_STATUS')");
 
-       }catch (SQLException e) {
-           System.err.println("Blad insertIntoCmtStatusTIME_OUT");
-       }
+                //ps.setString(1, "'"+date+"'");
 
+                ps.executeUpdate();
+                ps.close();
+
+            } catch (SQLException e) {
+                System.err.println("Blad insertIntoCmtStatusTIME_OUT");
+            }
+        }else
+        {
+            System.err.println("Dupa rekord pusty");
+        }
    }
+
 
 
 }

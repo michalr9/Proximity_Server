@@ -50,7 +50,13 @@ public class Server {
 
                 decodeMessage(messageContent);
 
+                if(messageContent.getSignal()==1)
+                database.insertIntoCmtStatusTIME_IN(messageContent);
+                if(messageContent.getSignal()==0)
+                    database.insertIntoCmtStatusTIME_OUT();
+
                 System.out.println( message);
+
             }
 
 
@@ -80,7 +86,7 @@ public class Server {
 
         int size = message.length();
         int signal = Integer.parseInt(message.substring(0,1));
-        String place = message.substring(1,size+1);
+        String place = message.substring(1,size);
         messageContent.setSignal(signal);
         messageContent.setPlace(place);
     }
