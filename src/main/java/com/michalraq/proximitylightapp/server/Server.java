@@ -1,6 +1,11 @@
 package com.michalraq.proximitylightapp.server;
+import com.michalraq.proximitylightapp.server.Database.DatabaseManager;
+import com.michalraq.proximitylightapp.server.Exceptions.LackOfDatabaseData;
+
 import java.io.*;
 import java.net.*;
+import java.sql.SQLException;
+
 public class Server {
 
     int 	port = 12345;
@@ -10,8 +15,15 @@ public class Server {
     PrintWriter printWriter;
     BufferedReader bufferedReader;
     String message;
-
-    Server(){}
+    DatabaseManager database;
+    Server(){
+        try {
+            database = new DatabaseManager();
+        } catch (LackOfDatabaseData lackOfDatabaseData) {
+            System.err.println("Connection with database will be imposible to do!");
+            lackOfDatabaseData.printStackTrace();
+        }
+    }
 
     // metoda obslugujaca klientow =====================================
     void run(){
@@ -28,16 +40,20 @@ public class Server {
 
             sendMessage("Połączono !");
 
+            if(socket!=null || !socket.isClosed()){
+                database.connectDatabase();
+            }
+
             MessageContent messageContent = new MessageContent();
 
             while((message = bufferedReader.readLine())!=null) {
 
-                messageContent.setMessage(message);
                 decodeMessage(messageContent);
 
-
-                    System.out.println( message);
+                System.out.println( message);
             }
+
+
 
         }
         catch(IOException ioException){
@@ -49,15 +65,19 @@ public class Server {
                 printWriter.close();
                 socket.close();
                 serverSocket.close();
+
+                if(!database.getConnection().isClosed())
+                database.disconnectDatabase();
                 System.out.println("Zamykam połączenie");
             }
-            catch(IOException ioException){
-                ioException.printStackTrace();
+            catch (SQLException | IOException e) {
+                e.printStackTrace();
             }
         }
     }
 
     void decodeMessage(MessageContent messageContent){
+
         int size = message.length();
         int signal = Integer.parseInt(message.substring(0,1));
         String place = message.substring(1,size+1);

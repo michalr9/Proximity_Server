@@ -11,15 +11,16 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 
 public class DatabaseManager {
-    private String hostName ;
-    private String dbName ;
-    private String user ;
-    private String password;
-@Getter private String url ;
-    private Connection connection = null;
+
+    @Getter private String url ;
+    @Getter private Connection connection;
 
    public DatabaseManager() throws LackOfDatabaseData {
        ArrayList<String> list = FileReader.readDbFile("database.txt");
+       String hostName;
+       String dbName;
+       String user;
+       String password;
        if (!list.isEmpty()) {
            hostName = list.get(0);
            dbName = list.get(1);
@@ -37,29 +38,31 @@ public class DatabaseManager {
        }
    }
 
-    public Boolean connectToDatabase(){
+    public Boolean connectDatabase(){
         try {
-            connection = DriverManager.getConnection(url);
-            String schema = connection.getSchema();
-            System.out.println("Successful connection - Schema: " + schema);
-            System.out.println("Connection with database established");
-            return true;
+                connection = DriverManager.getConnection(url);
+                String schema = connection.getSchema();
+                System.out.println("Successful connection - Schema: " + schema);
+                System.out.println("Connection with database established");
+                return true;
         }
         catch (Exception e) {
-            e.printStackTrace();
+            System.err.println("Error occured during connect to database!");
             return false;
         }
     }
 
     public Boolean disconnectDatabase(){
         try {
+            if(connection!=null)
             connection.close();
-            System.out.println("Connection closed");
+            System.out.println("Connection with database closed");
             return true;
         } catch (SQLException e) {
-            e.printStackTrace();
+            System.err.println("Error occured during disconnect to database!");
         return false;
         }
     }
+
 
 }
