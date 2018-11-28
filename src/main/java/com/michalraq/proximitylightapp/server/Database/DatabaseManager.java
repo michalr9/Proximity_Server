@@ -1,13 +1,14 @@
 package com.michalraq.proximitylightapp.server.Database;
 
 import com.michalraq.proximitylightapp.server.Exceptions.LackOfDatabaseData;
+import com.michalraq.proximitylightapp.server.MessageContent;
 import com.michalraq.proximitylightapp.server.Util.FileReader;
 import lombok.Getter;
 
 
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.SQLException;
+import java.sql.*;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 
 public class DatabaseManager {
@@ -63,6 +64,53 @@ public class DatabaseManager {
         return false;
         }
     }
+
+    public void insertIntoCmtStatusTIME_IN(MessageContent message) {
+        DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+        LocalDateTime now = LocalDateTime.now();
+        String date = dtf.format(now);
+
+        String sql1 = "INSERT DEV.CMT_STATUS VALUES \n" +
+                "(NEXT VALUE FOR DEV.SEQ_ID_STATUS,CAST('" + date + "'AS smalldatetime),null,"+message.getPlace()+")";
+
+        try (Statement stm = connection.createStatement()) {
+
+            stm.execute(sql1);
+        } catch (SQLException e) {
+            System.err.println("Blad insertIntoCmtStatusTIME_OUT");
+        }
+    }
+
+    public void updateStatusOfLight(MessageContent message){
+        String sql2 = "update DEV.CMT_PLACES\n" +
+                "set POWER_ON_OFF = 1\n" +
+                "where ID_STATUS= (select current_value from sys.sequences where name = 'SEQ_ID_STATUS')";
+    }
+
+       public void insertIntoCmtStatusTIME_OUT(){
+        DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+        LocalDateTime now = LocalDateTime.now();
+        String date = dtf.format(now);
+        StringBuilder build = new StringBuilder("'");
+        build.append(date).append("'");
+        date = build.toString();
+
+        try{
+       PreparedStatement ps = connection.prepareStatement(
+                   "update DEV.CMT_STATUS\n" +
+                           "set TIME_OUT = CAST(?  as smalldatetime)\n" +
+                           "where ID_STATUS= (select current_value from sys.sequences where name = 'SEQ_ID_STATUS')");
+
+           ps.setString(1,date);
+
+           ps.executeUpdate();
+           ps.close();
+
+       }catch (SQLException e) {
+           System.err.println("Blad insertIntoCmtStatusTIME_OUT");
+       }
+
+   }
 
 
 }
