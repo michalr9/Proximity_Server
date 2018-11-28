@@ -20,7 +20,7 @@
 *.rar
 
 # Idea
-.idea
+.idea/
 *.iml
 *.iws
 *.ipr
@@ -29,5 +29,17 @@
 log/
 target/
 
+# local template parameters
+**/azuredeploy.parameters.local.jsongot
+**/azuredeploy.parameters.dev.json
+**/azuredeploy.parameters.*.json
+**/prereq.azuredeploy.parameters.*.json
+
+# secrets
+**/*.pfx
+
 # virtual machine crash logs, see http://www.java.com/en/download/help/error_hotspot.xml
 hs_err_pid*
+
+#own
+database.txt

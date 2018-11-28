@@ -1,10 +1,9 @@
-package main.java.com.michalraq.proximitylightapp.server;
+package com.michalraq.proximitylightapp.server;
 import java.io.*;
 import java.net.*;
 public class Server {
 
     int 	port = 12345;
-    String 	host = "127.0.0.1";
 
     ServerSocket serverSocket;
     Socket socket = null;
@@ -29,7 +28,13 @@ public class Server {
 
             sendMessage("Połączono !");
 
+            MessageContent messageContent = new MessageContent();
+
             while((message = bufferedReader.readLine())!=null) {
+
+                messageContent.setMessage(message);
+                decodeMessage(messageContent);
+
 
                     System.out.println( message);
             }
@@ -50,6 +55,14 @@ public class Server {
                 ioException.printStackTrace();
             }
         }
+    }
+
+    void decodeMessage(MessageContent messageContent){
+        int size = message.length();
+        int signal = Integer.parseInt(message.substring(0,1));
+        String place = message.substring(1,size+1);
+        messageContent.setSignal(signal);
+        messageContent.setPlace(place);
     }
 
     void sendMessage(String msg) {
