@@ -88,13 +88,18 @@ public class DatabaseManager {
                 "where ID_STATUS= (select current_value from sys.sequences where name = 'SEQ_ID_STATUS')";
     }
 
-       public void insertIntoCmtStatusTIME_OUT(){
+       public void insertIntoCmtStatusTIME_OUT(MessageContent message){
         DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
         LocalDateTime now = LocalDateTime.now();
         String date = dtf.format(now);
         StringBuilder build = new StringBuilder("'");
         build.append(date).append("'");
         date = build.toString();
+
+        StringBuilder placeBuild = new StringBuilder("'");
+        placeBuild.append(message.getPlace()).append("'");
+        String place = placeBuild.toString();
+
         boolean flag=false;
 
         //sprawdzenie czy istnieje rekord z aktualna wartoscia sekwencji, jezeli nie to nic nie rob
@@ -116,9 +121,8 @@ public class DatabaseManager {
                 PreparedStatement ps = connection.prepareStatement(
                         "update DEV.CMT_STATUS\n" +
                                 "set TIME_OUT = CAST("+date+" as datetime)\n" +
-                                "where ID_STATUS= (select current_value from sys.sequences where name = 'SEQ_ID_STATUS')");
-
-                //ps.setString(1, "'"+date+"'");
+                                "where ID_STATUS= (select current_value from sys.sequences where name = 'SEQ_ID_STATUS')\n" +
+                                "AND CMT_PLACES_PLACE="+place);
 
                 ps.executeUpdate();
                 ps.close();

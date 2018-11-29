@@ -53,7 +53,7 @@ public class Server {
                 if(messageContent.getSignal()==1)
                 database.insertIntoCmtStatusTIME_IN(messageContent);
                 if(messageContent.getSignal()==0)
-                    database.insertIntoCmtStatusTIME_OUT();
+                    database.insertIntoCmtStatusTIME_OUT(messageContent);
 
                 System.out.println( message);
 
