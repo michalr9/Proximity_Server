@@ -71,7 +71,7 @@ public class DatabaseManager {
         String date = dtf.format(now);
 
         String sql = "INSERT DEV.CMT_STATUS VALUES \n" +
-                "(NEXT VALUE FOR DEV.SEQ_ID_STATUS,CAST('" + date + "'AS smalldatetime),null,'"+message.getPlace()+"')";
+                "(NEXT VALUE FOR DEV.SEQ_ID_STATUS,CAST('" + date + "'AS datetime),null,'"+message.getPlace()+"')";
 
         try (Statement stm = connection.createStatement()) {
 
@@ -115,7 +115,7 @@ public class DatabaseManager {
             try {
                 PreparedStatement ps = connection.prepareStatement(
                         "update DEV.CMT_STATUS\n" +
-                                "set TIME_OUT = CAST("+date+" as smalldatetime)\n" +
+                                "set TIME_OUT = CAST("+date+" as datetime)\n" +
                                 "where ID_STATUS= (select current_value from sys.sequences where name = 'SEQ_ID_STATUS')");
 
                 //ps.setString(1, "'"+date+"'");
@@ -128,10 +128,11 @@ public class DatabaseManager {
             }
         }else
         {
-            System.err.println("Dupa rekord pusty");
+            System.err.println("Brak rekordu do Zaktualizowania");
         }
    }
 
-
+//TODO DLACZEGO NIE MA WARTOSCI SEKUND W BAZIE
+    //TODO DOROBIC AKTUALIZACJE STATUSU W TABELI PLACE
 
 }
