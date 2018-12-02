@@ -10,12 +10,12 @@ public class Server {
 
     int 	port = 12345;
 
-    ServerSocket serverSocket;
-    Socket socket = null;
-    PrintWriter printWriter;
-    BufferedReader bufferedReader;
-    String message;
-    DatabaseManager database;
+    private ServerSocket serverSocket;
+    private Socket socket = null;
+    private PrintWriter printWriter;
+    private BufferedReader bufferedReader;
+    private String message;
+    private DatabaseManager database;
     Server(){
         try {
             database = new DatabaseManager();

@@ -8,8 +8,6 @@ import lombok.Getter;
 
 
 import java.sql.*;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 
 public class DatabaseManager {
@@ -54,19 +52,17 @@ public class DatabaseManager {
         }
     }
 
-    public Boolean disconnectDatabase(){
+    public void disconnectDatabase(){
         try {
             if(connection!=null)
             connection.close();
             System.out.println("Connection with database closed");
-            return true;
         } catch (SQLException e) {
             System.err.println("Error occured during disconnect to database!");
-        return false;
         }
     }
 
-    public void insertIntoCmtStatusTIME_IN(MessageContent message) {
+    public Boolean insertIntoCmtStatusTIME_IN(MessageContent message) {
 
         String dateNow = StringOperations.getCurrentDateYMDHmS();
 
@@ -75,38 +71,22 @@ public class DatabaseManager {
 
         try (Statement stm = connection.createStatement()) {
             stm.execute(sql);
+            return true;
         } catch (SQLException e) {
             System.err.println("Blad INSERT_IN");
             e.printStackTrace();
+            return false;
         }
     }
+
     @SuppressWarnings("Duplicates")
-    public void insertIntoCmtStatusTIME_OUT(MessageContent message){
+    public Boolean insertIntoCmtStatusTIME_OUT(MessageContent message){
 
         String date = StringOperations.getCurrentDateYMDHmS();
         date=StringOperations.addSingleQuotes(date);
         String place = StringOperations.addSingleQuotes(message.getPlace());
 
-        boolean flag=false;
-
-        String SQL = "select CMT_STATUS.ID_STATUS from CMT_STATUS \n" +
-                "where ID_STATUS = (select current_value from sys.sequences where name = 'SEQ_ID_STATUS');";
-
-           //sprawdzenie czy istnieje rekord z aktualna wartoscia sekwencji, jezeli nie to nic nie rob
-           try (Statement stm = connection.createStatement()) {
-           ResultSet rs = stm.executeQuery(SQL);
-           rs.next();
-           flag=rs.getBoolean("ID_STATUS");
-
-               if (!rs.wasNull()) {
-                   flag = true;
-               }else {
-                   flag=false;
-               }
-           } catch (SQLException e) {
-               System.err.println("Blad podczas sprawdzenia czy istnieje rekord");
-               e.printStackTrace();
-           }
+        boolean flag= checkIfRecordExists();
 
         if(flag) {
 
@@ -118,17 +98,18 @@ public class DatabaseManager {
                 PreparedStatement ps = connection.prepareStatement(sql);
                 ps.executeUpdate();
                 ps.close();
-
+                return true;
             } catch (SQLException e) {
                 System.err.println("Blad insertIntoCmtStatusTIME_OUT");
+                return false;
             }
         }else
         {
             System.err.println("Brak rekordu do Zaktualizowania");
+            return false;
         }
    }
 
-    @SuppressWarnings("Duplicates")
     public void updateStatusOfLight(MessageContent messageContent){
        //true - on
        //false - off
@@ -156,7 +137,47 @@ public class DatabaseManager {
 
     }
 
-    //TODO DOROBIC AKTUALIZACJE STATUSU W TABELI PLACE
+    private Boolean checkIfRecordExists(){
+        Boolean flag=false;
+        String SQL = "select CMT_STATUS.ID_STATUS from CMT_STATUS \n" +
+                "where ID_STATUS = (select current_value from sys.sequences where name = 'SEQ_ID_STATUS');";
+
+        //sprawdzenie czy istnieje rekord z aktualna wartoscia sekwencji, jezeli nie to nic nie rob
+        try (Statement stm = connection.createStatement()) {
+            ResultSet rs = stm.executeQuery(SQL);
+            rs.next();
+            flag=rs.getBoolean("ID_STATUS");
+
+            if (!rs.wasNull()) {
+                flag = true;
+            }else {
+                flag=false;
+            }
+        } catch (SQLException e) {
+            System.err.println("Blad podczas sprawdzenia czy istnieje rekord");
+            e.printStackTrace();
+            return flag;
+        }
+
+       return flag;
+    }
+
+    public Boolean checkStatus(MessageContent messageContent) {
+        String place = StringOperations.addSingleQuotes(messageContent.getPlace());
+        Boolean status=false;
+        String SQL = "select CMT_PLACES.POWER_ON from CMT_PLACES\n" +
+                "where PLACE =" + place;
+        try (Statement stm = connection.createStatement()) {
+            ResultSet rs = stm.executeQuery(SQL);
+            rs.next();
+            status=rs.getBoolean("POWER_ON");
+        } catch (SQLException e) {
+            System.err.println("Blad podczas sprawdzenia czy istnieje rekord");
+            e.printStackTrace();
+        }
+        return status;
+    }
+
     //TODO Jezeli insert , a poprzedni rekord ma wartosc null przy wyjsciu to wyslij sygnal z wylaczeniem swiatla
 
 }
