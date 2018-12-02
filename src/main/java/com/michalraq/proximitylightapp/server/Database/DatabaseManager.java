@@ -3,6 +3,7 @@ package com.michalraq.proximitylightapp.server.Database;
 import com.michalraq.proximitylightapp.server.Exceptions.LackOfDatabaseData;
 import com.michalraq.proximitylightapp.server.MessageContent;
 import com.michalraq.proximitylightapp.server.Util.FileReader;
+import com.michalraq.proximitylightapp.server.Util.StringOperations;
 import lombok.Getter;
 
 
@@ -66,54 +67,52 @@ public class DatabaseManager {
     }
 
     public void insertIntoCmtStatusTIME_IN(MessageContent message) {
-        DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-        LocalDateTime now = LocalDateTime.now();
-        String date = dtf.format(now);
+
+        String dateNow = StringOperations.getCurrentDateYMDHmS();
 
         String sql = "INSERT DEV.CMT_STATUS VALUES \n" +
-                "(NEXT VALUE FOR DEV.SEQ_ID_STATUS,CAST('" + date + "'AS datetime),null,'"+message.getPlace()+"')";
+                "(NEXT VALUE FOR DEV.SEQ_ID_STATUS,CAST('" + dateNow + "'AS datetime),null,'"+message.getPlace()+"')";
 
         try (Statement stm = connection.createStatement()) {
-
             stm.execute(sql);
         } catch (SQLException e) {
-            System.err.println("Blad insertIntoCmtStatusTIME_IN");
+            System.err.println("Blad INSERT_IN");
             e.printStackTrace();
         }
     }
 
     public void updateStatusOfLight(MessageContent message){
+
         String sql2 = "update DEV.CMT_PLACES\n" +
                 "set POWER_ON_OFF = 1\n" +
                 "where ID_STATUS= (select current_value from sys.sequences where name = 'SEQ_ID_STATUS')";
     }
 
        public void insertIntoCmtStatusTIME_OUT(MessageContent message){
-        DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-        LocalDateTime now = LocalDateTime.now();
-        String date = dtf.format(now);
-        StringBuilder build = new StringBuilder("'");
-        build.append(date).append("'");
-        date = build.toString();
 
-        StringBuilder placeBuild = new StringBuilder("'");
-        placeBuild.append(message.getPlace()).append("'");
-        String place = placeBuild.toString();
+        String date = StringOperations.getCurrentDateYMDHmS();
+        date=StringOperations.addSingleQuotes(date);
+        String place = StringOperations.addSingleQuotes(message.getPlace());
 
         boolean flag=false;
 
-        //sprawdzenie czy istnieje rekord z aktualna wartoscia sekwencji, jezeli nie to nic nie rob
+        String SQL = "select CMT_STATUS.ID_STATUS from CMT_STATUS \n" +
+                "where ID_STATUS = (select current_value from sys.sequences where name = 'SEQ_ID_STATUS');";
+
+           //sprawdzenie czy istnieje rekord z aktualna wartoscia sekwencji, jezeli nie to nic nie rob
            try (Statement stm = connection.createStatement()) {
-           String SQL = "select CMT_STATUS.ID_STATUS from CMT_STATUS where ID_STATUS = (select current_value from sys.sequences where name = 'SEQ_ID_STATUS');";
            ResultSet rs = stm.executeQuery(SQL);
            rs.next();
            flag=rs.getBoolean("ID_STATUS");
-           if(!rs.wasNull())
-               flag=true;
+
+               if (!rs.wasNull()) {
+                   flag = true;
+               }else {
+                   flag=false;
+               }
            } catch (SQLException e) {
                System.err.println("Blad podczas sprawdzenia czy istnieje rekord");
                e.printStackTrace();
-
            }
 
         if(flag) {
