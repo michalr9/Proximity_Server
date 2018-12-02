@@ -80,15 +80,8 @@ public class DatabaseManager {
             e.printStackTrace();
         }
     }
-
-    public void updateStatusOfLight(MessageContent message){
-
-        String sql2 = "update DEV.CMT_PLACES\n" +
-                "set POWER_ON_OFF = 1\n" +
-                "where ID_STATUS= (select current_value from sys.sequences where name = 'SEQ_ID_STATUS')";
-    }
-
-       public void insertIntoCmtStatusTIME_OUT(MessageContent message){
+    @SuppressWarnings("Duplicates")
+    public void insertIntoCmtStatusTIME_OUT(MessageContent message){
 
         String date = StringOperations.getCurrentDateYMDHmS();
         date=StringOperations.addSingleQuotes(date);
@@ -116,12 +109,13 @@ public class DatabaseManager {
            }
 
         if(flag) {
+
+         String sql = "update DEV.CMT_STATUS\n" +
+                 "set TIME_OUT = CAST("+date+" as datetime)\n" +
+                 "where ID_STATUS= (select current_value from sys.sequences where name = 'SEQ_ID_STATUS')\n" +
+                 "AND CMT_PLACES_PLACE="+place;
             try {
-                PreparedStatement ps = connection.prepareStatement(
-                        "update DEV.CMT_STATUS\n" +
-                                "set TIME_OUT = CAST("+date+" as datetime)\n" +
-                                "where ID_STATUS= (select current_value from sys.sequences where name = 'SEQ_ID_STATUS')\n" +
-                                "AND CMT_PLACES_PLACE="+place);
+                PreparedStatement ps = connection.prepareStatement(sql);
                 ps.executeUpdate();
                 ps.close();
 
@@ -133,6 +127,34 @@ public class DatabaseManager {
             System.err.println("Brak rekordu do Zaktualizowania");
         }
    }
+
+    @SuppressWarnings("Duplicates")
+    public void updateStatusOfLight(MessageContent messageContent){
+       //true - on
+       //false - off
+        String sql;
+        String place = StringOperations.addSingleQuotes(messageContent.getPlace());
+        if (messageContent.getSignal()==1) {
+
+             sql = "update DEV.CMT_PLACES\n" +
+                    "set POWER_ON = 1,MODIFICATION_DATE = getdate() + '01:0'\n" +
+                     "where PLACE = "+place ;
+        } else {
+             sql = "update DEV.CMT_PLACES\n" +
+                    "set POWER_ON = 0,MODIFICATION_DATE = getdate() + '01:0'\n" +
+                    "where PLACE = "+place ;
+        }
+
+        try {
+            PreparedStatement ps = connection.prepareStatement(sql);
+            ps.executeUpdate();
+            ps.close();
+
+        } catch (SQLException e) {
+            System.err.println("Blad podczas zmiany statusu swiatla");
+        }
+
+    }
 
     //TODO DOROBIC AKTUALIZACJE STATUSU W TABELI PLACE
     //TODO Jezeli insert , a poprzedni rekord ma wartosc null przy wyjsciu to wyslij sygnal z wylaczeniem swiatla

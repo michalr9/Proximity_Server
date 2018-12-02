@@ -52,15 +52,14 @@ public class Server {
 
                 if(messageContent.getSignal()==1)
                 database.insertIntoCmtStatusTIME_IN(messageContent);
+
                 if(messageContent.getSignal()==0)
                     database.insertIntoCmtStatusTIME_OUT(messageContent);
 
+              //  database.updateStatusOfLight(messageContent);
+
                 System.out.println( message);
-
             }
-
-
-
         }
         catch(IOException ioException){
             ioException.printStackTrace();
