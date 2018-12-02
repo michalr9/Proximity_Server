@@ -123,7 +123,6 @@ public class DatabaseManager {
                                 "set TIME_OUT = CAST("+date+" as datetime)\n" +
                                 "where ID_STATUS= (select current_value from sys.sequences where name = 'SEQ_ID_STATUS')\n" +
                                 "AND CMT_PLACES_PLACE="+place);
-
                 ps.executeUpdate();
                 ps.close();
 
@@ -136,7 +135,7 @@ public class DatabaseManager {
         }
    }
 
-//TODO DLACZEGO NIE MA WARTOSCI SEKUND W BAZIE
     //TODO DOROBIC AKTUALIZACJE STATUSU W TABELI PLACE
+    //TODO Jezeli insert , a poprzedni rekord ma wartosc null przy wyjsciu to wyslij sygnal z wylaczeniem swiatla
 
 }
