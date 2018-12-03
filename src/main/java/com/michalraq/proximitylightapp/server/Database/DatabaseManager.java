@@ -26,14 +26,18 @@ public class DatabaseManager {
            dbName = list.get(1);
            user = list.get(2);
            password = list.get(3);
-           url = String.format("jdbc:sqlserver://%s:1433;database=%s;user=%s;password=%s;encrypt=true;trustServerCertificate=false;hostNameInCertificate=*.database.windows.net;loginTimeout=30;", hostName, dbName, user, password);
+           url = String.format("jdbc:sqlserver://%s:1433;" +
+                   "database=%s" +
+                   ";user=%s" +
+                   ";password=%s" +
+                   ";encrypt=true;trustServerCertificate=false;hostNameInCertificate=*.database.windows.net;loginTimeout=30;",
+                   hostName,
+                   dbName,
+                   user,
+                   password);
 
 
        } else {
-           hostName = "";
-           dbName = "";
-           user = "";
-           password = "";
            throw new LackOfDatabaseData();
        }
    }
@@ -52,14 +56,16 @@ public class DatabaseManager {
         }
     }
 
-    public void disconnectDatabase(){
+    public Boolean disconnectDatabase(){
         try {
             if(connection!=null)
             connection.close();
             System.out.println("Connection with database closed");
         } catch (SQLException e) {
             System.err.println("Error occured during disconnect to database!");
+            return false;
         }
+        return true;
     }
 
     public Boolean insertIntoCmtStatusTIME_IN(MessageContent message) {
