@@ -12,7 +12,7 @@ import java.util.ArrayList;
 
 public class DatabaseManager {
 
-    @Getter private String url ;
+     private String url ;
     @Getter private Connection connection;
 
    public DatabaseManager() throws LackOfDatabaseData {
@@ -184,6 +184,5 @@ public class DatabaseManager {
         return status;
     }
 
-    //TODO Jezeli insert , a poprzedni rekord ma wartosc null przy wyjsciu to wyslij sygnal z wylaczeniem swiatla
 
 }

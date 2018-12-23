@@ -37,7 +37,6 @@ public class Server {
 
             bufferedReader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
             printWriter = new PrintWriter(socket.getOutputStream());
-
             sendMessage("Połączono !");
 
             if(socket!=null || !socket.isClosed()){
