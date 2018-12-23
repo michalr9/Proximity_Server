@@ -17,4 +17,12 @@ public class StringOperations {
         LocalDateTime now = LocalDateTime.now();
         return dtf.format(now);
     }
+
+    public static String addDoubleQuotes(String word){
+        StringBuilder build = new StringBuilder('"');
+        build.append(word).append('"');
+        word=build.toString();
+        return word;
+    }
+
 }

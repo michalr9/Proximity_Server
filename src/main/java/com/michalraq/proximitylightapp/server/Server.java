@@ -1,6 +1,9 @@
 package com.michalraq.proximitylightapp.server;
 import com.michalraq.proximitylightapp.server.Database.DatabaseManager;
 import com.michalraq.proximitylightapp.server.Exceptions.LackOfDatabaseData;
+import com.michalraq.proximitylightapp.server.Util.StringOperations;
+import org.apache.http.client.methods.HttpPost;
+import org.json.simple.JSONObject;
 
 import java.io.*;
 import java.net.*;
@@ -49,13 +52,19 @@ public class Server {
 
                 decodeMessage(messageContent);
 
-                if(messageContent.getSignal()==1)
-                database.insertIntoCmtStatusTIME_IN(messageContent);
+                if(messageContent.getSignal()==1) {
+                    database.insertIntoCmtStatusTIME_IN(messageContent);
+                    sendRequestToESP(messageContent);
+                    database.updateStatusOfLight(messageContent); //TODO zmienic na ustawianie w bazie jezeli odpowiedz z requesta bedzie poprawna
+                }
 
-                if(messageContent.getSignal()==0)
+                if(messageContent.getSignal()==0) {
                     database.insertIntoCmtStatusTIME_OUT(messageContent);
+                    sendRequestToESP(messageContent);
+                    database.updateStatusOfLight(messageContent);
 
-              //  database.updateStatusOfLight(messageContent);
+                }
+
 
                 System.out.println( message);
             }
@@ -94,4 +103,18 @@ public class Server {
             printWriter.flush();
     }
 
+    void sendRequestToESP(MessageContent messageContent){
+        int signal = messageContent.getSignal();
+        String place = messageContent.getPlace();
+        String url="http://192.168.0.19/switch";
+        String username="cHJveGltaXR5QWRtaW4=";
+        String password="cHJveDIwMThA";
+        JSONObject user=new JSONObject();
+        user.put("signal", signal);
+        user.put("place", place);
+        String jsonData=user.toString();
+        HttpURLClient httpPostReq=new HttpURLClient();
+        HttpPost httpPost=httpPostReq.createConnectivity(url , username, password);
+        httpPostReq.executeReq( jsonData, httpPost);
+    }
 }
