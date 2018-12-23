@@ -85,7 +85,6 @@ public class DatabaseManager {
         }
     }
 
-    @SuppressWarnings("Duplicates")
     public Boolean insertIntoCmtStatusTIME_OUT(MessageContent message){
 
         String date = StringOperations.getCurrentDateYMDHmS();
