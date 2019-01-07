@@ -8,6 +8,8 @@ import org.json.simple.JSONObject;
 import java.io.*;
 import java.net.*;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.Arrays;
 
 public class Server {
 
@@ -19,6 +21,7 @@ public class Server {
     private BufferedReader bufferedReader;
     private String message;
     private DatabaseManager database;
+    private ArrayList<Integer> codeTab ;
     Server(){
         try {
             database = new DatabaseManager();
@@ -26,6 +29,8 @@ public class Server {
             System.err.println("Connection with database will be imposible to do!");
             lackOfDatabaseData.printStackTrace();
         }
+
+       codeTab = new ArrayList<>(Arrays.asList(200,201,202,203,204,205,206));
     }
 
     // metoda obslugujaca klientow =====================================
@@ -46,6 +51,7 @@ public class Server {
                 database.connectDatabase();
             }
 
+            int success;
             MessageContent messageContent = new MessageContent();
 
             while((message = bufferedReader.readLine())!=null) {
@@ -53,19 +59,29 @@ public class Server {
                 decodeMessage(messageContent);
 
                 if(messageContent.getSignal()==1) {
-                    database.insertIntoCmtStatusTIME_IN(messageContent);
-                    sendRequestToESP(messageContent);
-                    database.updateStatusOfLight(messageContent); //TODO zmienic na ustawianie w bazie jezeli odpowiedz z requesta bedzie poprawna
+                    success = sendRequestToESP(messageContent);
+
+                    if(codeTab.contains(success)) {
+                        database.insertIntoCmtStatusTIME_IN(messageContent);
+                        database.updateStatusOfLight(messageContent);
+                    }
+                    else{
+                        sendMessage("Światło nie zostało włączone!");
+                    }
                 }
 
                 if(messageContent.getSignal()==0) {
-                    database.insertIntoCmtStatusTIME_OUT(messageContent);
-                    sendRequestToESP(messageContent);
-                    database.updateStatusOfLight(messageContent);
+                    success = sendRequestToESP(messageContent);
+
+                    if (codeTab.contains(success)) {
+                        database.insertIntoCmtStatusTIME_OUT(messageContent);
+                        database.updateStatusOfLight(messageContent);
+                    } else {
+                        sendMessage("Światło nie zostało wyłączone!");
+
+                    }
 
                 }
-
-
                 System.out.println( message);
             }
         }
@@ -103,7 +119,12 @@ public class Server {
             printWriter.flush();
     }
 
-    void sendRequestToESP(MessageContent messageContent){
+    /**
+     * Wysłanie żądania do serwera
+     * @param messageContent
+     * @return int - kod odpowiedzi
+     */
+    int sendRequestToESP(MessageContent messageContent){
         int signal = messageContent.getSignal();
         String place = messageContent.getPlace();
         String url="http://192.168.0.19/switch";
@@ -116,5 +137,6 @@ public class Server {
         HttpURLClient httpPostReq=new HttpURLClient();
         HttpPost httpPost=httpPostReq.createConnectivity(url , username, password);
         httpPostReq.executeReq( jsonData, httpPost);
+        return httpPostReq.getReturnCode();
     }
 }
