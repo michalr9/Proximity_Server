@@ -90,14 +90,7 @@ public class Server {
         }
         finally{
             try{
-                bufferedReader.close();
-                printWriter.close();
-                socket.close();
-                serverSocket.close();
-
-                if(!database.getConnection().isClosed())
-                database.disconnectDatabase();
-                System.out.println("Zamykam połączenie");
+            disconnect();
             }
             catch (SQLException | IOException e) {
                 e.printStackTrace();
@@ -138,5 +131,49 @@ public class Server {
         HttpPost httpPost=httpPostReq.createConnectivity(url , username, password);
         httpPostReq.executeReq( jsonData, httpPost);
         return httpPostReq.getReturnCode();
+    }
+
+    private void deactivateLights(){
+        MessageContent messageContent1 = new MessageContent();
+        MessageContent messageContent2 = new MessageContent();
+        MessageContent messageContent3 = new MessageContent();
+
+        messageContent1.setSignal(0);
+        messageContent2.setSignal(0);
+        messageContent3.setSignal(0);
+
+        messageContent1.setPlace("biuro");
+
+
+        messageContent2.setPlace("salon");
+        messageContent3.setPlace("kuchnia");
+         try {
+
+            sendRequestToESP(messageContent1);
+
+             Thread.sleep(1000);
+             sendRequestToESP(messageContent2);
+
+             Thread.sleep(1000);
+             sendRequestToESP(messageContent3);
+
+         } catch (InterruptedException e) {
+             e.printStackTrace();
+         }
+
+    }
+
+    private void disconnect() throws IOException, SQLException {
+        deactivateLights();
+
+        bufferedReader.close();
+        printWriter.close();
+        socket.close();
+        serverSocket.close();
+
+
+        if(!database.getConnection().isClosed())
+            database.disconnectDatabase();
+        System.out.println("Zamykam połączenie");
     }
 }
