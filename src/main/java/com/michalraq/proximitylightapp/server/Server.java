@@ -1,7 +1,6 @@
 package com.michalraq.proximitylightapp.server;
 import com.michalraq.proximitylightapp.server.Database.DatabaseManager;
 import com.michalraq.proximitylightapp.server.Exceptions.LackOfDatabaseData;
-import com.michalraq.proximitylightapp.server.Util.StringOperations;
 import org.apache.http.client.methods.HttpPost;
 import org.json.simple.JSONObject;
 
@@ -16,12 +15,14 @@ public class Server {
     int 	port = 12345;
 
     private ServerSocket serverSocket;
-    private Socket socket = null;
+    private Socket client = null;
     private PrintWriter printWriter;
     private BufferedReader bufferedReader;
     private String message;
     private DatabaseManager database;
     private ArrayList<Integer> codeTab ;
+    private ArrayList<String> acceptedClients ;
+    private static Boolean isRejected=false;
     Server(){
         try {
             database = new DatabaseManager();
@@ -31,6 +32,7 @@ public class Server {
         }
 
        codeTab = new ArrayList<>(Arrays.asList(200,201,202,203,204,205,206));
+        acceptedClients = new ArrayList<>(Arrays.asList("/192.168.0.10","/192.168.0.26"));
     }
 
     // metoda obslugujaca klientow =====================================
@@ -39,50 +41,58 @@ public class Server {
             // tworzymy nowe gniazdo -----------------------------------
             serverSocket = new ServerSocket( port);
             // akceptujemy polaczenie ----------------------------------
-            socket = serverSocket.accept();
+            client = serverSocket.accept();
             // wyswietlamy informacje o polaczeniu ---------------------
-            System.out.println("Address: " + socket.getInetAddress() + " Port: " + socket.getPort() );
+            System.out.println("Address: " + client.getInetAddress() + " Port: " + client.getPort() );
 
-            bufferedReader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-            printWriter = new PrintWriter(socket.getOutputStream());
-            sendMessage("Połączono !");
+            if(acceptedClients.contains(client.getInetAddress().toString())) {
+                isRejected=false;
 
-            if(socket!=null || !socket.isClosed()){
-                database.connectDatabase();
-            }
+                bufferedReader = new BufferedReader(new InputStreamReader(client.getInputStream()));
+                printWriter = new PrintWriter(client.getOutputStream());
+                sendMessage("Połączono !");
 
-            int success;
-            MessageContent messageContent = new MessageContent();
+                    database.connectDatabase();
 
-            while((message = bufferedReader.readLine())!=null) {
 
-                decodeMessage(messageContent);
+                int success;
+                MessageContent messageContent = new MessageContent();
 
-                if(messageContent.getSignal()==1) {
-                    success = sendRequestToESP(messageContent);
+                while ((message = bufferedReader.readLine()) != null) {
 
-                    if(codeTab.contains(success)) {
-                        database.insertIntoCmtStatusTIME_IN(messageContent);
-                        database.updateStatusOfLight(messageContent);
+                    decodeMessage(messageContent);
+
+                    if (messageContent.getSignal() == 1) {
+                        success = sendRequestToESP(messageContent);
+
+                        if (codeTab.contains(success)) {
+                            database.insertIntoCmtStatusTIME_IN(messageContent);
+                            database.updateStatusOfLight(messageContent);
+                        } else {
+                            sendMessage("Światło nie zostało włączone!");
+                        }
                     }
-                    else{
-                        sendMessage("Światło nie zostało włączone!");
+
+                    if (messageContent.getSignal() == 0) {
+                        success = sendRequestToESP(messageContent);
+
+                        if (codeTab.contains(success)) {
+                            database.insertIntoCmtStatusTIME_OUT(messageContent);
+                            database.updateStatusOfLight(messageContent);
+                        } else {
+                            sendMessage("Światło nie zostało wyłączone!");
+
+                        }
+
                     }
+                    System.out.println(message);
                 }
 
-                if(messageContent.getSignal()==0) {
-                    success = sendRequestToESP(messageContent);
-
-                    if (codeTab.contains(success)) {
-                        database.insertIntoCmtStatusTIME_OUT(messageContent);
-                        database.updateStatusOfLight(messageContent);
-                    } else {
-                        sendMessage("Światło nie zostało wyłączone!");
-
-                    }
-
-                }
-                System.out.println( message);
+            }else
+            {
+                printWriter = new PrintWriter(client.getOutputStream());
+                sendMessage("Połączenie niedozwolone !");
+                isRejected=true;
             }
         }
         catch(IOException ioException){
@@ -164,16 +174,22 @@ public class Server {
     }
 
     private void disconnect() throws IOException, SQLException {
+        if(!isRejected)
         deactivateLights();
 
+        if(bufferedReader!=null)
         bufferedReader.close();
+        if(printWriter!=null)
         printWriter.close();
-        socket.close();
+
+        client.close();
         serverSocket.close();
 
-
-        if(!database.getConnection().isClosed())
-            database.disconnectDatabase();
+        if (client != null || !client.isClosed()) {
+            if(database.getConnection()!=null)
+            if (!database.getConnection().isClosed())
+                database.disconnectDatabase();
+        }
         System.out.println("Zamykam połączenie");
     }
 }
