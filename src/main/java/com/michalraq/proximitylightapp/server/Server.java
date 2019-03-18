@@ -32,7 +32,8 @@ public class Server {
         }
 
        codeTab = new ArrayList<>(Arrays.asList(200,201,202,203,204,205,206));
-        acceptedClients = new ArrayList<>(Arrays.asList("/192.168.0.10","/192.168.0.26"));
+        acceptedClients = new ArrayList<>(Arrays.asList("/192.168.0.10","/192.168.0.26","/192.168.0.157","/192.168.0.31"));
+        //192.168.0.157 huawei 192.168.0.31 lg
     }
 
     // metoda obslugujaca klientow =====================================
