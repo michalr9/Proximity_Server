@@ -131,7 +131,7 @@ public class Server {
     int sendRequestToESP(MessageContent messageContent){
         int signal = messageContent.getSignal();
         String place = messageContent.getPlace();
-        String url="http://192.168.0.19/switch";
+        String url="http://192.168.0.248/switch";
         String username="cHJveGltaXR5QWRtaW4=";
         String password="cHJveDIwMThA";
         JSONObject user=new JSONObject();
@@ -154,8 +154,6 @@ public class Server {
         messageContent3.setSignal(0);
 
         messageContent1.setPlace("biuro");
-
-
         messageContent2.setPlace("salon");
         messageContent3.setPlace("kuchnia");
          try {
