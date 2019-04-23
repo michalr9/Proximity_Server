@@ -1,22 +1,48 @@
 package com.michalraq.proximitylightapp.server;
 
-import com.michalraq.proximitylightapp.server.Database.DatabaseManager;
-import com.michalraq.proximitylightapp.server.Exceptions.LackOfDatabaseData;
 
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
+import javax.net.ssl.SSLServerSocket;
+import javax.net.ssl.SSLServerSocketFactory;
+import java.io.File;
+import java.io.IOException;
+import java.net.URISyntaxException;
+import java.net.URL;
+import java.nio.file.Paths;
 
 public class Main {
+private final static String keystoreName = "mrstore.jks";
+private final static String password = "password";
+private final static int portNumber =12345;
 
     public static void main(String[] args) {
-        Server server = new Server();
+
+        URL res = Main.class.getClassLoader().getResource(keystoreName);
+        File file;
+        SSLServerSocketFactory sslServerSocketFactory;
+        SSLServerSocket sslServerSocket=null;
+        try {
+            file = Paths.get(res.toURI()).toFile();
+        String absolutePath = file.getAbsolutePath();
+
+        System.setProperty("javax.net.ssl.keyStore",absolutePath);
+        System.setProperty("javax.net.ssl.keyStorePassword", password);
+
+             sslServerSocketFactory = (SSLServerSocketFactory) SSLServerSocketFactory.getDefault();
+             sslServerSocket = (SSLServerSocket) sslServerSocketFactory.createServerSocket(portNumber);
 
         while(true){
-            server.run();
+            new Server(sslServerSocket.accept()).start();
         }
 
+        } catch (URISyntaxException | IOException e) {
+            e.printStackTrace();
+            if(sslServerSocket!=null) {
+                try {
+                    sslServerSocket.close();
+                } catch (IOException e1) {
+                    e1.printStackTrace();
+                }
+            }
+        }
     }
 }

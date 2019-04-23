@@ -10,11 +10,9 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
 
-public class Server {
+public class Server extends Thread{
 
-    int 	port = 12345;
 
-    private ServerSocket serverSocket;
     private Socket client = null;
     private PrintWriter printWriter;
     private BufferedReader bufferedReader;
@@ -23,8 +21,9 @@ public class Server {
     private ArrayList<Integer> codeTab ;
     private ArrayList<String> acceptedClients ;
     private static Boolean isRejected=false;
-    Server(){
+    Server(Socket socket){
         try {
+            client=socket;
             database = new DatabaseManager();
         } catch (LackOfDatabaseData lackOfDatabaseData) {
             System.err.println("Connection with database will be imposible to do!");
@@ -36,13 +35,9 @@ public class Server {
         //192.168.0.157 huawei 192.168.0.31 lg
     }
 
-    // metoda obslugujaca klientow =====================================
-    void run(){
+    public void run(){
         try{
-            // tworzymy nowe gniazdo -----------------------------------
-            serverSocket = new ServerSocket( port);
-            // akceptujemy polaczenie ----------------------------------
-            client = serverSocket.accept();
+
             // wyswietlamy informacje o polaczeniu ---------------------
             System.out.println("Address: " + client.getInetAddress() + " Port: " + client.getPort() );
 
@@ -53,6 +48,7 @@ public class Server {
                 printWriter = new PrintWriter(client.getOutputStream());
                 sendMessage("Połączono !");
 
+                if(database.getConnection() == null)
                     database.connectDatabase();
 
 
@@ -156,6 +152,7 @@ public class Server {
         messageContent1.setPlace("biuro");
         messageContent2.setPlace("salon");
         messageContent3.setPlace("kuchnia");
+
          try {
 
             sendRequestToESP(messageContent1);
@@ -182,7 +179,6 @@ public class Server {
         printWriter.close();
 
         client.close();
-        serverSocket.close();
 
         if (client != null || !client.isClosed()) {
             if(database.getConnection()!=null)
