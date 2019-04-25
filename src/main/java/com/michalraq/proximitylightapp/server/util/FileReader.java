@@ -1,4 +1,4 @@
-package com.michalraq.proximitylightapp.server.Util;
+package com.michalraq.proximitylightapp.server.util;
 
 import java.io.File;
 import java.io.FileNotFoundException;

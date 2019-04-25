@@ -1,4 +1,4 @@
-package com.michalraq.proximitylightapp.server;
+package com.michalraq.proximitylightapp.server.data;
 
 import lombok.Getter;
 import lombok.Setter;

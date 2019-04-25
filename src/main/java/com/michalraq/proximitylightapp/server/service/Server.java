@@ -1,6 +1,7 @@
-package com.michalraq.proximitylightapp.server;
-import com.michalraq.proximitylightapp.server.Database.DatabaseManager;
-import com.michalraq.proximitylightapp.server.Exceptions.LackOfDatabaseData;
+package com.michalraq.proximitylightapp.server.service;
+import com.michalraq.proximitylightapp.server.data.DatabaseManager;
+import com.michalraq.proximitylightapp.server.exceptions.LackOfDatabaseData;
+import com.michalraq.proximitylightapp.server.data.MessageContent;
 import org.apache.http.client.methods.HttpPost;
 import org.json.simple.JSONObject;
 
@@ -21,7 +22,7 @@ public class Server extends Thread{
     private ArrayList<Integer> codeTab ;
     private ArrayList<String> acceptedClients ;
     private static Boolean isRejected=false;
-    Server(Socket socket){
+    public Server(Socket socket){
         try {
             client=socket;
             database = new DatabaseManager();
@@ -180,10 +181,12 @@ public class Server extends Thread{
 
         client.close();
 
-        if (client != null || !client.isClosed()) {
-            if(database.getConnection()!=null)
-            if (!database.getConnection().isClosed())
-                database.disconnectDatabase();
+        if(!isRejected) {
+            if (client != null || !client.isClosed()) {
+                if (database.getConnection() != null)
+                    if (!database.getConnection().isClosed())
+                        database.disconnectDatabase();
+            }
         }
         System.out.println("Zamykam połączenie");
     }

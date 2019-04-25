@@ -1,6 +1,8 @@
 package com.michalraq.proximitylightapp.server;
 
 
+import com.michalraq.proximitylightapp.server.service.Server;
+
 import javax.net.ssl.SSLServerSocket;
 import javax.net.ssl.SSLServerSocketFactory;
 import java.io.File;

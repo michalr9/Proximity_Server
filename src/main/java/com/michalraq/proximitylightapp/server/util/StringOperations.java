@@ -1,4 +1,4 @@
-package com.michalraq.proximitylightapp.server.Util;
+package com.michalraq.proximitylightapp.server.util;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;

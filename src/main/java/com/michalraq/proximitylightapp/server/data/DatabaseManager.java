@@ -1,9 +1,8 @@
-package com.michalraq.proximitylightapp.server.Database;
+package com.michalraq.proximitylightapp.server.data;
 
-import com.michalraq.proximitylightapp.server.Exceptions.LackOfDatabaseData;
-import com.michalraq.proximitylightapp.server.MessageContent;
-import com.michalraq.proximitylightapp.server.Util.FileReader;
-import com.michalraq.proximitylightapp.server.Util.StringOperations;
+import com.michalraq.proximitylightapp.server.exceptions.LackOfDatabaseData;
+import com.michalraq.proximitylightapp.server.util.FileReader;
+import com.michalraq.proximitylightapp.server.util.StringOperations;
 import lombok.Getter;
 
 

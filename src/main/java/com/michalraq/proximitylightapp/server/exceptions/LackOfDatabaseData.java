@@ -1,4 +1,4 @@
-package com.michalraq.proximitylightapp.server.Exceptions;
+package com.michalraq.proximitylightapp.server.exceptions;
 
 public class LackOfDatabaseData extends Throwable{
     public LackOfDatabaseData() {
