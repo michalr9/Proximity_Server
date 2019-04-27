@@ -5,12 +5,26 @@ import com.michalraq.proximitylightapp.server.exceptions.LackOfDatabaseData;
 import java.io.*;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Properties;
 import java.util.Scanner;
 
 public class FileReaderUtil {
 
+    public static String getProperty(String key){
 
-    public static ArrayList<String> getFileResources(String fileName) throws LackOfDatabaseData {
+        Properties properties = new Properties();
+
+        try (InputStream input = FileReaderUtil.class.getClassLoader().getResourceAsStream("esp.properties")) {
+            properties.load(input);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
+        return properties.getProperty(key);
+
+    }
+
+    public static ArrayList<String> getFileResources(String fileName){
 
         File file;
         ArrayList<String> list = new ArrayList<String>();
@@ -35,8 +49,7 @@ public class FileReaderUtil {
         } catch (IOException e) {
             System.out.println("Reading failed!");
         }
-return list;
-
+    return list;
     }
 
     public static ArrayList<String> readDbFile(String filename){

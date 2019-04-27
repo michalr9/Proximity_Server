@@ -2,6 +2,7 @@ package com.michalraq.proximitylightapp.server;
 
 
 import com.michalraq.proximitylightapp.server.service.Server;
+import com.michalraq.proximitylightapp.server.util.FileReaderUtil;
 
 import javax.net.ssl.SSLServerSocket;
 import javax.net.ssl.SSLServerSocketFactory;
@@ -17,7 +18,6 @@ private final static String password = "password";
 private final static int portNumber =12345;
 
     public static void main(String[] args) {
-
         URL res = Main.class.getClassLoader().getResource(keystoreName);
         File file;
         SSLServerSocketFactory sslServerSocketFactory;

@@ -2,6 +2,7 @@ package com.michalraq.proximitylightapp.server.service;
 import com.michalraq.proximitylightapp.server.data.DatabaseManager;
 import com.michalraq.proximitylightapp.server.exceptions.LackOfDatabaseData;
 import com.michalraq.proximitylightapp.server.data.MessageContent;
+import com.michalraq.proximitylightapp.server.util.FileReaderUtil;
 import org.apache.http.client.methods.HttpPost;
 import org.json.simple.JSONObject;
 
@@ -22,6 +23,7 @@ public class Server extends Thread{
     private ArrayList<Integer> codeTab ;
     private ArrayList<String> acceptedClients ;
     private static Boolean isRejected=false;
+
     public Server(Socket socket){
         try {
             client=socket;
@@ -52,7 +54,6 @@ public class Server extends Thread{
                 if(database.getConnection() == null)
                     database.connectDatabase();
 
-
                 int success;
                 MessageContent messageContent = new MessageContent();
 
@@ -79,9 +80,7 @@ public class Server extends Thread{
                             database.updateStatusOfLight(messageContent);
                         } else {
                             sendMessage("Światło nie zostało wyłączone!");
-
                         }
-
                     }
                     System.out.println(message);
                 }
@@ -106,8 +105,7 @@ public class Server extends Thread{
         }
     }
 
-    void decodeMessage(MessageContent messageContent){
-
+    private void decodeMessage(MessageContent messageContent){
         int size = message.length();
         int signal = Integer.parseInt(message.substring(0,1));
         String place = message.substring(1,size);
@@ -115,7 +113,7 @@ public class Server extends Thread{
         messageContent.setPlace(place);
     }
 
-    void sendMessage(String msg) {
+    private void sendMessage(String msg) {
             printWriter.println( msg );
             printWriter.flush();
     }
@@ -128,15 +126,15 @@ public class Server extends Thread{
     private int sendRequestToESP(MessageContent messageContent){
         int signal = messageContent.getSignal();
         String place = messageContent.getPlace();
-        String url="http://192.168.0.248/switch";
-        String username="cHJveGltaXR5QWRtaW4=";
-        String password="cHJveDIwMThA";
         JSONObject user=new JSONObject();
         user.put("signal", signal);
         user.put("place", place);
         String jsonData=user.toString();
         HttpURLClient httpPostReq=new HttpURLClient();
-        HttpPost httpPost=httpPostReq.createConnectivity(url , username, password);
+        String url = FileReaderUtil.getProperty("url");
+        String username = FileReaderUtil.getProperty("user");
+        String password = FileReaderUtil.getProperty("password");
+        HttpPost httpPost=httpPostReq.createConnectivity(url, username, password);
         httpPostReq.executeReq( jsonData, httpPost);
         return httpPostReq.getReturnCode();
     }
