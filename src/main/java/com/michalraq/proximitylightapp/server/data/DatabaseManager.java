@@ -1,7 +1,7 @@
 package com.michalraq.proximitylightapp.server.data;
 
 import com.michalraq.proximitylightapp.server.exceptions.LackOfDatabaseData;
-import com.michalraq.proximitylightapp.server.util.FileReader;
+import com.michalraq.proximitylightapp.server.util.FileReaderUtil;
 import com.michalraq.proximitylightapp.server.util.StringOperations;
 import lombok.Getter;
 
@@ -15,7 +15,7 @@ public class DatabaseManager {
     @Getter private Connection connection;
 
    public DatabaseManager() throws LackOfDatabaseData {
-       ArrayList<String> list = FileReader.readDbFile("database.txt");
+       ArrayList<String> list = FileReaderUtil.getFileResources("database.properties");
        String hostName;
        String dbName;
        String user;

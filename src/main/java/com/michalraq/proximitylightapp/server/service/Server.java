@@ -125,7 +125,7 @@ public class Server extends Thread{
      * @param messageContent
      * @return int - kod odpowiedzi
      */
-    int sendRequestToESP(MessageContent messageContent){
+    private int sendRequestToESP(MessageContent messageContent){
         int signal = messageContent.getSignal();
         String place = messageContent.getPlace();
         String url="http://192.168.0.248/switch";
