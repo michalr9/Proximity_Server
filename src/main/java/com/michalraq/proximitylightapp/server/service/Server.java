@@ -14,7 +14,6 @@ import java.util.Arrays;
 
 public class Server extends Thread{
 
-
     private Socket client = null;
     private PrintWriter printWriter;
     private BufferedReader bufferedReader;
@@ -33,7 +32,7 @@ public class Server extends Thread{
             lackOfDatabaseData.printStackTrace();
         }
 
-       codeTab = new ArrayList<>(Arrays.asList(200,201,202,203,204,205,206));
+        codeTab = new ArrayList<>(Arrays.asList(200,201,202,203,204,205,206));
         acceptedClients = new ArrayList<>(Arrays.asList("/192.168.0.10","/192.168.0.26","/192.168.0.157","/192.168.0.31"));
         //192.168.0.157 huawei 192.168.0.31 lg
     }
@@ -140,6 +139,7 @@ public class Server extends Thread{
     }
 
     private void deactivateLights(){
+        //TODO zmiana statusu w bazie dla wlaczonych swiatel
         MessageContent messageContent1 = new MessageContent();
         MessageContent messageContent2 = new MessageContent();
         MessageContent messageContent3 = new MessageContent();

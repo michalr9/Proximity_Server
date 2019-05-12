@@ -2,8 +2,6 @@ package com.michalraq.proximitylightapp.server;
 
 
 import com.michalraq.proximitylightapp.server.service.Server;
-import com.michalraq.proximitylightapp.server.util.FileReaderUtil;
-
 import javax.net.ssl.SSLServerSocket;
 import javax.net.ssl.SSLServerSocketFactory;
 import java.io.File;
@@ -23,6 +21,7 @@ private final static int portNumber =12345;
         SSLServerSocketFactory sslServerSocketFactory;
         SSLServerSocket sslServerSocket=null;
         try {
+            assert res != null;
             file = Paths.get(res.toURI()).toFile();
         String absolutePath = file.getAbsolutePath();
 
