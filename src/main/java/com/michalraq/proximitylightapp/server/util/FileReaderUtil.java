@@ -1,7 +1,5 @@
 package com.michalraq.proximitylightapp.server.util;
 
-import com.michalraq.proximitylightapp.server.exceptions.LackOfDatabaseData;
-
 import java.io.*;
 import java.net.URL;
 import java.util.ArrayList;

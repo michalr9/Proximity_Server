@@ -34,13 +34,12 @@ public class Server extends Thread{
 
         codeTab = new ArrayList<>(Arrays.asList(200,201,202,203,204,205,206));
         acceptedClients = new ArrayList<>(Arrays.asList("/192.168.0.10","/192.168.0.26","/192.168.0.157","/192.168.0.31"));
-        //192.168.0.157 huawei 192.168.0.31 lg
     }
 
     public void run(){
         try{
+            int success;
 
-            // wyswietlamy informacje o polaczeniu ---------------------
             System.out.println("Address: " + client.getInetAddress() + " Port: " + client.getPort() );
 
             if(acceptedClients.contains(client.getInetAddress().toString())) {
@@ -53,7 +52,6 @@ public class Server extends Thread{
                 if(database.getConnection() == null)
                     database.connectDatabase();
 
-                int success;
                 MessageContent messageContent = new MessageContent();
 
                 while ((message = bufferedReader.readLine()) != null) {
@@ -64,6 +62,9 @@ public class Server extends Thread{
                         success = sendRequestToESP(messageContent);
 
                         if (codeTab.contains(success)) {
+                            if(database.getConnection().isClosed())
+                                database.connectDatabase();
+
                             database.insertIntoCmtStatusTIME_IN(messageContent);
                             database.updateStatusOfLight(messageContent);
                         } else {
@@ -75,6 +76,9 @@ public class Server extends Thread{
                         success = sendRequestToESP(messageContent);
 
                         if (codeTab.contains(success)) {
+                            if(database.getConnection().isClosed())
+                                database.connectDatabase();
+
                             database.insertIntoCmtStatusTIME_OUT(messageContent);
                             database.updateStatusOfLight(messageContent);
                         } else {
@@ -91,10 +95,9 @@ public class Server extends Thread{
                 isRejected=true;
             }
         }
-        catch(IOException ioException){
+        catch(IOException | SQLException ioException){
             ioException.printStackTrace();
-        }
-        finally{
+        } finally{
             try{
             disconnect();
             }
@@ -139,7 +142,6 @@ public class Server extends Thread{
     }
 
     private void deactivateLights(){
-        //TODO zmiana statusu w bazie dla wlaczonych swiatel
         MessageContent messageContent1 = new MessageContent();
         MessageContent messageContent2 = new MessageContent();
         MessageContent messageContent3 = new MessageContent();

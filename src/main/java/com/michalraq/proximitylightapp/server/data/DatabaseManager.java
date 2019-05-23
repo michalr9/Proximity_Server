@@ -146,7 +146,6 @@ public class DatabaseManager {
         String SQL = "select CMT_STATUS.ID_STATUS from CMT_STATUS \n" +
                 "where ID_STATUS = (select current_value from sys.sequences where name = 'SEQ_ID_STATUS');";
 
-        //sprawdzenie czy istnieje rekord z aktualna wartoscia sekwencji, jezeli nie to nic nie rob
         try (Statement stm = connection.createStatement()) {
             ResultSet rs = stm.executeQuery(SQL);
             rs.next();
